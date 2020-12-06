@@ -88,7 +88,7 @@ def threaded(c,addr):
             break
     if(flag==0): iptable.append([addr,(ip,addr[1])])
     print_lock.release()
-    info=main(addr[0])
+    info=main(ip)
     c.send(str(info).encode())
     c.close()
     splitip()
