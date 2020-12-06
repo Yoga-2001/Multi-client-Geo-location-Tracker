@@ -79,7 +79,7 @@ def splitip():
 def threaded(c,addr):
     flag=0
     global ip,iptable
-    ip=c.recv(1024).decode()
+    # ip=c.recv(1024).decode()
     print(ip)
     for i in range(len(iptable)):
         if(iptable[i][0][1]==addr[1] and iptable[i][0][0]==addr[0]):
