@@ -82,11 +82,11 @@ def threaded(c,addr):
     # ip=c.recv(1024).decode()
     print(ip)
     for i in range(len(iptable)):
-        if(iptable[i][0][1]==addr[1] and iptable[i][0][0]==addr[0]):
+        if(iptable[i][0]==addr[0]):
             flag=1
-            ip=iptable[i][1][0]
+            ip=iptable[i][0]
             break
-    if(flag==0): iptable.append([addr,(ip,addr[1])])
+    if(flag==0): iptable.append([addr[0],(ip)])
     print_lock.release()
     info=main(addr[0])
     c.send(str(info).encode())
