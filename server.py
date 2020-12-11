@@ -59,7 +59,7 @@ def trigger_api(ip):
 
 def main(ip):
           
-    print("Getting details for IP: ",ip,".....")
+    print("Getting details for IP: " +ip+".....")
     print("Details Sent!!!")
     api_response = trigger_api(ip)
     return api_response
