@@ -59,7 +59,7 @@ def trigger_api(ip):
 
 def main(ip):
           
-    print("Getting details for IP: " +ip+".....")
+    print("Getting details for IP: " + ip+".....")
     print("Details Sent!!!")
     api_response = trigger_api(ip)
     return api_response
@@ -79,14 +79,16 @@ def splitip():
 def threaded(c,addr):
     flag=0
     global ip,iptable
+    # ip=c.recv(1024).decode()
+    print(ip)
     for i in range(len(iptable)):
-        if(iptable[i][0][1]==addr[1] and iptable[i][0][0]==addr[0]):
+        if(iptable[i][0]==addr[0]):
             flag=1
-            ip=iptable[i][1][0]
+            ip=iptable[i][0]
             break
-    if(flag==0): iptable.append([addr,(ip,addr[1])])
+    if(flag==0): iptable.append([addr[0],(ip)])
     print_lock.release()
-    info=main(addr)
+    info=main(addr[0])
     c.send(str(info).encode())
     c.close()
     splitip()
@@ -96,33 +98,33 @@ def threaded(c,addr):
     
 
 def Main(): 
-	host = "" 
+        host = "" 
 
-	# reverse a port on your computer 
-	# in our case it is 12345 but it 
-	# can be anything 
-	port = 12347
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-	s.bind((host, port)) 
-	print("socket binded to port", port) 
+        # reverse a port on your computer 
+        # in our case it is 12345 but it 
+        # can be anything 
+        port = 12347
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        s.bind((host, port)) 
+        print("socket binded to port", port) 
 
-	# put the socket into listening mode 
-	s.listen(5) 
-	print("socket is listening") 
+        # put the socket into listening mode 
+        s.listen(5) 
+        print("socket is listening") 
 
-	# a forever loop until client wants to exit 
-	while True: 
+        # a forever loop until client wants to exit 
+        while True: 
 
-		# establish connection with client 
-		c, addr = s.accept() 
+                # establish connection with client 
+                c, addr = s.accept() 
 
-		# lock acquired by client 
-		print_lock.acquire() 
-		print('Connected to :', addr[0], ':', addr[1]) 
+                # lock acquired by client 
+                print_lock.acquire() 
+                print('Connected to :', addr[0], ':', addr[1]) 
 
-		# Start a new thread and return its identifier 
-		start_new_thread(threaded, (c,addr)) 
-	s.close() 
+                # Start a new thread and return its identifier 
+                start_new_thread(threaded, (c,addr)) 
+        s.close() 
 
 
 if __name__ == '__main__':
