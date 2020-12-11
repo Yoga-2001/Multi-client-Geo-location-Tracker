@@ -25,7 +25,7 @@ root.geometry("800x500")
 
 def connectip():
   s = socket.socket()
-  port=9009
+  port=9020
   s.connect(('127.0.0.1', port))
   api_response=s.recv(1024).decode()
   s.close()
