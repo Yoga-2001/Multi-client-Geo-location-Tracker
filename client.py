@@ -25,10 +25,8 @@ root.geometry("800x500")
 
 def connectip():
   s = socket.socket()
-  port=12347
-  s.connect(('13.68.207.73', port))
-  ip=requests.get('https://api.ipify.org').text #public ip
-  s.send(str(ip).encode())
+  port=9009
+  s.connect(('127.0.0.1', port))
   api_response=s.recv(1024).decode()
   s.close()
   return api_response

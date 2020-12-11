@@ -3,8 +3,10 @@ import socket
 
 # import thread module 
 from _thread import *
+from threading import *
 import threading 
 import sys
+import time
 import json
 import requests
 import csv
@@ -12,8 +14,11 @@ import socket
 from signal import signal, SIGINT
 from sys import exit
 
+sem=Semaphore(4)
 ip=requests.get('https://api.ipify.org').text #public ip
 iptable=[]
+ips=['13.68.207.73','13.68.207.73','13.68.207.73','13.68.207.73']
+avail=[1,1,1,1]
 
 print_lock = threading.Lock() 
 
@@ -46,54 +51,42 @@ def handler(signal_received,frame):
     sys.exit()
 
 
-def trigger_api(ip):
-  querystring = {"ip": ip}
-  url = "https://geo.ipify.org/api/v1?apiKey=at_LHZrfcs9aoOIVLAmHfZdyGOj9hzKW&ipAddress="+ip
 
-  response =  requests.request('GET', 'http://ip-api.com/json/'+ip)
 
-  if(200 == response.status_code):
-    return json.loads(response.text)
-  else:
-    return None
+def check():
+    index=-1
+    global avail
+    for i in range(len(avail)):
+        if (avail[i] == 1):
+            avail[i]=0
+            return i
+    return index
 
-def main(ip):
-          
-    print("Getting details for IP: ",ip,".....")
-    print("Details Sent!!!")
-    api_response = trigger_api(ip)
+def serverconnect(ipt):
+    s = socket.socket()
+    port=12347
+    s.connect((ipt, port))
+    ip=requests.get('https://api.ipify.org').text #public ip
+    s.send(str(ip).encode())
+    api_response=s.recv(1024).decode()
+    s.close()
     return api_response
-
-def splitip():
-    global ip
-    ip1=ip.split(".")
-    temp=int(ip1[3])+1
-    if(temp>255):
-        temp-=254
-    ip1[3]=str(temp)
-    ip="."
-    ip=ip.join(ip1)
-
 
 # thread function 
 def threaded(c,addr):
-    flag=0
-    global ip,iptable
-    for i in range(len(iptable)):
-        if(iptable[i][0][1]==addr[1] and iptable[i][0][0]==addr[0]):
-            flag=1
-            ip=iptable[i][1][0]
-            break
-    if(flag==0): iptable.append([addr,(ip,addr[1])])
-    print_lock.release()
-    info=main(addr)
+
+    global iptable,ips
+
+    sem.acquire()
+    index=check()
+    iptable.append([addr,ips[index]])
+    info=serverconnect(ips[index])
     c.send(str(info).encode())
+    time.sleep(5)
+    avail[index]=1
+    sem.release()
     c.close()
-    splitip()
 
-
-
-    
 
 def Main(): 
 	host = "" 
@@ -101,7 +94,7 @@ def Main():
 	# reverse a port on your computer 
 	# in our case it is 12345 but it 
 	# can be anything 
-	port = 12347
+	port = 9009
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 	s.bind((host, port)) 
 	print("socket binded to port", port) 
@@ -117,7 +110,7 @@ def Main():
 		c, addr = s.accept() 
 
 		# lock acquired by client 
-		print_lock.acquire() 
+
 		print('Connected to :', addr[0], ':', addr[1]) 
 
 		# Start a new thread and return its identifier 
